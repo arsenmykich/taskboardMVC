@@ -386,6 +386,32 @@ body {
     overflow: hidden;
 }
 
+/* Logout button styling to match dropdown items */
+.dropdown-menu form button.dropdown-item {
+    background: none !important;
+    border: none !important;
+    width: 100% !important;
+    text-align: left !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: inherit !important;
+    color: inherit !important;
+    cursor: pointer;
+}
+
+.dropdown-menu form button.dropdown-item:hover,
+.dropdown-menu form button.dropdown-item:focus {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: white !important;
+    transform: translateX(5px);
+}
+
+.dropdown-item-content {
+    display: block !important;
+    width: 100% !important;
+    transition: all 0.3s ease;
+}
+
 /* Скролбар */
 ::-webkit-scrollbar {
     width: 8px;

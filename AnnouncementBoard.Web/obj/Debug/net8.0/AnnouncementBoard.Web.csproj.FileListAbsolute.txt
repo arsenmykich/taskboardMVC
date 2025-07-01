@@ -1,3 +1,5 @@
+D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\appsettings.Development.json
+D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\appsettings.Development.template.json
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\appsettings.json
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\AnnouncementBoard.Web.staticwebassets.runtime.json
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\AnnouncementBoard.Web.exe
@@ -6,6 +8,7 @@ D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\AnnouncementBoard.Web.dll
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\AnnouncementBoard.Web.pdb
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\Humanizer.dll
+D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\Microsoft.Build.Locator.dll
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
@@ -138,5 +141,3 @@ D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\obj\Debug\net8.0\
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\obj\Debug\net8.0\AnnouncementBoard.Web.pdb
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\obj\Debug\net8.0\AnnouncementBoard.Web.genruntimeconfig.cache
 D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\obj\Debug\net8.0\ref\AnnouncementBoard.Web.dll
-D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
-D:\dotnet\test tasks\devcom\taskboardMVC\AnnouncementBoard.Web\bin\Debug\net8.0\appsettings.Development.template.json

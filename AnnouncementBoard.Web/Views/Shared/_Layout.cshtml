@@ -55,9 +55,14 @@
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="Logout">
-                                            <i class="fas fa-sign-out-alt me-1"></i>Вийти
-                                        </a>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start p-0">
+                                                <span class="dropdown-item-content px-3 py-2 d-block">
+                                                    <i class="fas fa-sign-out-alt me-1"></i>Вийти
+                                                </span>
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
                             </li>

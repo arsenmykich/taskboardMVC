@@ -84,10 +84,20 @@ namespace AnnouncementBoard.Web.Controllers
 
         [Authorize]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            try
+            {
+                await HttpContext.SignOutAsync();
+                _logger.LogInformation("User logged out successfully");
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during logout");
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         [Authorize]
