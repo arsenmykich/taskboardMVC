@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Вхід";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-bullhorn fa-3x text-primary mb-3"></i>
+                    <h3 class="card-title">Вітаємо!</h3>
+                    <p class="text-muted">Увійдіть для створення оголошень</p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <form asp-controller="Account" asp-action="LoginWithGoogle" method="post">
+                        <button type="submit" class="btn btn-danger btn-lg w-100">
+                            <i class="fab fa-google me-2"></i>
+                            Увійти з Google
+                        </button>
+                    </form>
+                </div>
+
+                <div class="text-center mt-4">
+                    <small class="text-muted">
+                        Натискаючи "Увійти з Google", ви погоджуєтеся з нашими умовами використання
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-link">
+                <i class="fas fa-arrow-left me-1"></i>Повернутися на головну
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Інформаційна секція -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="text-center">
+            <h4 class="mb-4">Чому варто зареєструватися?</h4>
+        </div>
+    </div>
+    <div class="col-md-4 text-center mb-4">
+        <div class="card h-100 border-0">
+            <div class="card-body">
+                <i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
+                <h5>Створюйте оголошення</h5>
+                <p class="text-muted">Легко розміщуйте свої товари та послуги</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 text-center mb-4">
+        <div class="card h-100 border-0">
+            <div class="card-body">
+                <i class="fas fa-edit fa-3x text-info mb-3"></i>
+                <h5>Керуйте оголошеннями</h5>
+                <p class="text-muted">Редагуйте та оновлюйте інформацію в будь-який час</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 text-center mb-4">
+        <div class="card h-100 border-0">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                <h5>Відстежуйте статистику</h5>
+                <p class="text-muted">Дивіться статистику переглядів ваших оголошень</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Анімація карток при наведенні
+            $('.card').hover(
+                function() {
+                    $(this).addClass('shadow-lg').removeClass('shadow');
+                },
+                function() {
+                    $(this).addClass('shadow').removeClass('shadow-lg');
+                }
+            );
+        });
+    </script>
+} 

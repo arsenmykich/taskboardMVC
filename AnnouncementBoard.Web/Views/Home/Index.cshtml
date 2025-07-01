@@ -1,0 +1,193 @@
+﻿@model AnnouncementBoard.Web.Models.ViewModels.HomeViewModel
+
+@{
+    ViewData["Title"] = "Головна";
+}
+
+<div class="hero-section bg-primary text-white rounded mb-4 p-4">
+    <div class="container text-center">
+        <h1 class="display-4"><i class="fas fa-bullhorn"></i> Дошка оголошень</h1>
+        <p class="lead">Знайдіть те, що шукаєте, або розмістіть своє оголошення</p>
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-light btn-lg">
+                <i class="fab fa-google me-2"></i>Почати з Google
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Announcements" asp-action="Create" class="btn btn-light btn-lg">
+                <i class="fas fa-plus me-2"></i>Створити оголошення
+            </a>
+        }
+    </div>
+</div>
+
+<!-- Фільтри -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Фільтри</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" id="filterForm">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="SearchTerm" class="form-label">Пошук</label>
+                    <input type="text" class="form-control" id="SearchTerm" name="SearchTerm" 
+                           value="@Model.SearchTerm" placeholder="Введіть ключові слова...">
+                </div>
+                <div class="col-md-3">
+                    <label for="CategoryId" class="form-label">Категорія</label>
+                    <select class="form-select" id="CategoryId" name="CategoryId">
+                        <option value="">Всі категорії</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                                                    <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">
+                            @category.Name
+                        </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="SubCategoryId" class="form-label">Підкатегорія</label>
+                    <select class="form-select" id="SubCategoryId" name="SubCategoryId">
+                        <option value="">Всі підкатегорії</option>
+                        @foreach (var subCategory in Model.SubCategories)
+                        {
+                                                    <option value="@subCategory.Id" selected="@(Model.SubCategoryId == subCategory.Id)">
+                            @subCategory.Name
+                        </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i>Знайти
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Очистити
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Знайдено: <strong>@Model.Announcements.Count()</strong> оголошень
+        </div>
+    </div>
+</div>
+
+<!-- Список оголошень -->
+<div class="row" id="announcementsList">
+    @if (Model.Announcements.Any())
+    {
+        @foreach (var announcement in Model.Announcements)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm announcement-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-tag me-1"></i>@announcement.Category.Name
+                        </small>
+                        <span class="badge bg-@(announcement.Status ? "success" : "secondary")">
+                            @(announcement.Status ? "Активне" : "Неактивне")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@announcement.Title</h5>
+                        <p class="card-text text-muted">
+                            @(announcement.Description.Length > 100 ? 
+                              announcement.Description.Substring(0, 100) + "..." : 
+                              announcement.Description)
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                @announcement.CreatedDate.ToString("dd.MM.yyyy")
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>
+                                @announcement.User.Name
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a asp-action="Details" asp-route-id="@announcement.Id" 
+                           class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-eye me-1"></i>Переглянути
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Оголошення не знайдено</h4>
+                <p class="text-muted">Спробуйте змінити параметри пошуку або створіть нове оголошення</p>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a asp-controller="Announcements" asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Створити оголошення
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Автоматичне завантаження підкатегорій при зміні категорії
+            $('#CategoryId').change(function() {
+                var categoryId = $(this).val();
+                var subCategorySelect = $('#SubCategoryId');
+                
+                // Очистити поточні підкатегорії
+                subCategorySelect.html('<option value="">Всі підкатегорії</option>');
+                
+                if (categoryId) {
+                    // Завантажити підкатегорії для обраної категорії
+                    $.get('@Url.Action("GetSubCategories", "Home")', { categoryId: categoryId })
+                        .done(function(data) {
+                            $.each(data, function(index, item) {
+                                subCategorySelect.append('<option value="' + item.value + '">' + item.text + '</option>');
+                            });
+                        })
+                        .fail(function() {
+                            console.error('Помилка завантаження підкатегорій');
+                        });
+                }
+            });
+
+            // Автопошук при введенні тексту (з затримкою)
+            var searchTimeout;
+            $('#SearchTerm').on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    $('#filterForm').submit();
+                }, 800);
+            });
+
+            // Анімація для карток оголошень
+            $('.announcement-card').hover(
+                function() {
+                    $(this).addClass('shadow-lg').removeClass('shadow-sm');
+                },
+                function() {
+                    $(this).addClass('shadow-sm').removeClass('shadow-lg');
+                }
+            );
+        });
+    </script>
+}
