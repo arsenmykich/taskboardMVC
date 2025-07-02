@@ -1,28 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Data\\AnnouncementBoard.Data.csproj": {}
+    "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Data/AnnouncementBoard.Data.csproj": {}
   },
   "projects": {
-    "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Core\\AnnouncementBoard.Core.csproj": {
+    "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/AnnouncementBoard.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Core\\AnnouncementBoard.Core.csproj",
+        "projectUniqueName": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/AnnouncementBoard.Core.csproj",
         "projectName": "AnnouncementBoard.Core",
-        "projectPath": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Core\\AnnouncementBoard.Core.csproj",
-        "packagesPath": "C:\\Users\\arsen\\.nuget\\packages\\",
-        "outputPath": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Core\\obj\\",
+        "projectPath": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/AnnouncementBoard.Core.csproj",
+        "packagesPath": "/Users/user/.nuget/packages/",
+        "outputPath": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\arsen\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/user/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -40,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -61,37 +59,34 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Data\\AnnouncementBoard.Data.csproj": {
+    "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Data/AnnouncementBoard.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Data\\AnnouncementBoard.Data.csproj",
+        "projectUniqueName": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Data/AnnouncementBoard.Data.csproj",
         "projectName": "AnnouncementBoard.Data",
-        "projectPath": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Data\\AnnouncementBoard.Data.csproj",
-        "packagesPath": "C:\\Users\\arsen\\.nuget\\packages\\",
-        "outputPath": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Data\\obj\\",
+        "projectPath": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Data/AnnouncementBoard.Data.csproj",
+        "packagesPath": "/Users/user/.nuget/packages/",
+        "outputPath": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Data/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\arsen\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/user/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Core\\AnnouncementBoard.Core.csproj": {
-                "projectPath": "D:\\dotnet\\test tasks\\devcom\\taskboardMVC\\AnnouncementBoard.Core\\AnnouncementBoard.Core.csproj"
+              "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/AnnouncementBoard.Core.csproj": {
+                "projectPath": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/AnnouncementBoard.Core.csproj"
               }
             }
           }
@@ -105,7 +100,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -138,7 +134,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.102/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

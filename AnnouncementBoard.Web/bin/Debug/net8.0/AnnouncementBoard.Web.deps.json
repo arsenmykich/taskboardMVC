@@ -663,12 +663,18 @@
           "AnnouncementBoard.Data": "1.0.0"
         },
         "runtime": {
-          "AnnouncementBoard.Business.dll": {}
+          "AnnouncementBoard.Business.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "AnnouncementBoard.Core/1.0.0": {
         "runtime": {
-          "AnnouncementBoard.Core.dll": {}
+          "AnnouncementBoard.Core.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "AnnouncementBoard.Data/1.0.0": {
@@ -677,7 +683,10 @@
           "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4"
         },
         "runtime": {
-          "AnnouncementBoard.Data.dll": {}
+          "AnnouncementBoard.Data.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

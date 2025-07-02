@@ -48,6 +48,27 @@ namespace AnnouncementBoard.Web.Controllers
             }
         }
 
+        // GET: Announcements/MyAnnouncementsStoredProc - використовує збережену процедуру
+        public async Task<IActionResult> MyAnnouncementsStoredProc()
+        {
+            try
+            {
+                var userId = await GetCurrentUserIdAsync();
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Challenge();
+                }
+
+                var announcements = await _announcementService.GetAnnouncementsByUserStoredProcAsync(userId);
+                return View("MyAnnouncements", announcements); // Використовуємо ту ж View
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при завантаженні оголошень користувача через збережену процедуру");
+                return View("MyAnnouncements", new List<Announcement>());
+            }
+        }
+
         // GET: Announcements/Create
         public async Task<IActionResult> Create()
         {
