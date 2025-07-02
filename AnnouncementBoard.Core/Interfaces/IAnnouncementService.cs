@@ -10,6 +10,7 @@ namespace AnnouncementBoard.Core.Interfaces
         Task<IEnumerable<Announcement>> GetAnnouncementsByCategoryAsync(int categoryId);
         Task<IEnumerable<Announcement>> GetAnnouncementsBySubCategoryAsync(int subCategoryId);
         Task<IEnumerable<Announcement>> GetAnnouncementsByUserAsync(string userId);
+        Task<IEnumerable<Announcement>> GetAnnouncementsByUserStoredProcAsync(string userId);
         Task<IEnumerable<Announcement>> SearchAnnouncementsAsync(string searchTerm);
         Task<Announcement> CreateAnnouncementAsync(Announcement announcement);
         Task<Announcement> UpdateAnnouncementAsync(Announcement announcement);

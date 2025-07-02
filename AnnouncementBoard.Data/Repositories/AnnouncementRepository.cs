@@ -89,5 +89,15 @@ namespace AnnouncementBoard.Data.Repositories
                 .Include(a => a.SubCategory)
                 .FirstOrDefaultAsync(a => a.Id == (int)id);
         }
+
+        public async Task<IEnumerable<Announcement>> GetAnnouncementsByUserStoredProcAsync(string userId)
+        {
+            return await _context.Set<Announcement>()
+                .FromSqlRaw("SELECT * FROM sp_GetUserAnnouncements({0})", userId)
+                .Include(a => a.Category)
+                .Include(a => a.SubCategory)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 } 

@@ -655,7 +655,10 @@
       "System.Threading.Channels/7.0.0": {},
       "AnnouncementBoard.Core/1.0.0": {
         "runtime": {
-          "AnnouncementBoard.Core.dll": {}
+          "AnnouncementBoard.Core.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

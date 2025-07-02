@@ -42,6 +42,11 @@ namespace AnnouncementBoard.Business.Services
             return await _unitOfWork.Announcements.GetAnnouncementsByUserAsync(userId);
         }
 
+        public async Task<IEnumerable<Announcement>> GetAnnouncementsByUserStoredProcAsync(string userId)
+        {
+            return await _unitOfWork.Announcements.GetAnnouncementsByUserStoredProcAsync(userId);
+        }
+
         public async Task<IEnumerable<Announcement>> SearchAnnouncementsAsync(string searchTerm)
         {
             return await _unitOfWork.Announcements.SearchAnnouncementsAsync(searchTerm);
