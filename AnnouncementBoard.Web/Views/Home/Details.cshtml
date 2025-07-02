@@ -1,0 +1,238 @@
+@model AnnouncementBoard.Core.Models.Announcement
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fas fa-home me-1"></i>Головна
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@Model.CategoryId">
+                @Model.Category.Name
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-@(Model.Status ? "success" : "secondary") me-2">
+                        @(Model.Status ? "Активне" : "Неактивне")
+                    </span>
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Опубліковано: @Model.CreatedDate.ToString("dd MMMM yyyy 'о' HH:mm")
+                    </small>
+                </div>
+                @if (User.Identity.IsAuthenticated && User.Identity.Name == Model.User.Email)
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" asp-controller="Announcements" asp-action="Edit" asp-route-id="@Model.Id">
+                                    <i class="fas fa-edit me-1"></i>Редагувати
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" asp-controller="Announcements" asp-action="Delete" asp-route-id="@Model.Id">
+                                    <i class="fas fa-trash me-1"></i>Видалити
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            </div>
+            <div class="card-body">
+                <h1 class="card-title h2 mb-3">@Model.Title</h1>
+                
+                <div class="announcement-description">
+                    <p class="lead">@Model.Description</p>
+                </div>
+
+                @if (Model.UpdatedDate != Model.CreatedDate)
+                {
+                    <div class="alert alert-light border-start border-info border-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Останнє оновлення: @Model.UpdatedDate.ToString("dd MMMM yyyy 'о' HH:mm")
+                        </small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Інформація про автора -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-user me-2"></i>Інформація про автора
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-3">
+                        <i class="fas fa-user fa-2x text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">@Model.User.Name</h6>
+                        <small class="text-muted">
+                            Зареєстрований: @Model.User.CreatedAt.ToString("MMMM yyyy")
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Категорія та підкатегорія -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-tags me-2"></i>Категорії
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Категорія:</strong>
+                    <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@Model.CategoryId" 
+                       class="text-decoration-none">
+                        <span class="badge bg-primary">@Model.Category.Name</span>
+                    </a>
+                </div>
+                @if (Model.SubCategory != null)
+                {
+                    <div>
+                        <strong>Підкатегорія:</strong>
+                        <a asp-controller="Home" asp-action="Index" 
+                           asp-route-categoryId="@Model.CategoryId" 
+                           asp-route-subCategoryId="@Model.SubCategoryId" 
+                           class="text-decoration-none">
+                            <span class="badge bg-secondary">@Model.SubCategory.Name</span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Схожі оголошення -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Інші оголошення в категорії
+                </h6>
+            </div>
+            <div class="card-body">
+                <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@Model.CategoryId" 
+                   class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-eye me-1"></i>Переглянути всі в "@Model.Category.Name"
+                </a>
+                @if (Model.SubCategory != null)
+                {
+                    <a asp-controller="Home" asp-action="Index" 
+                       asp-route-categoryId="@Model.CategoryId" 
+                       asp-route-subCategoryId="@Model.SubCategoryId" 
+                       class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-eye me-1"></i>В підкатегорії "@Model.SubCategory.Name"
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Кнопки дій -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Повернутися до списку
+            </a>
+            
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">
+                    <i class="fab fa-google me-1"></i>Увійти для створення оголошення
+                </a>
+            }
+            else if (User.Identity.Name != Model.User.Email)
+            {
+                <a asp-controller="Announcements" asp-action="Create" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i>Створити своє оголошення
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Плавна прокрутка до секцій
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if( target.length ) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 70
+                    }, 500);
+                }
+            });
+
+            // Копіювання посилання на оголошення
+            $('#shareLink').on('click', function(e) {
+                e.preventDefault();
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    // Показати повідомлення про успішне копіювання
+                    var tooltip = new bootstrap.Tooltip(document.getElementById('shareLink'), {
+                        title: 'Посилання скопійовано!',
+                        trigger: 'manual'
+                    });
+                    tooltip.show();
+                    setTimeout(function() {
+                        tooltip.dispose();
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #dee2e6;
+    }
+
+    .announcement-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style> 

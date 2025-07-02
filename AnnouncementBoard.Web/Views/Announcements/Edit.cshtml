@@ -1,0 +1,219 @@
+@model AnnouncementBoard.Web.Models.ViewModels.AnnouncementViewModel
+
+@{
+    ViewData["Title"] = "Редагувати оголошення";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fas fa-home me-1"></i>Головна
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Announcements" asp-action="MyAnnouncements">
+                Мої оголошення
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Редагувати</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Редагувати оголошення
+                </h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input asp-for="Id" type="hidden">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">
+                            <i class="fas fa-heading me-1"></i>Назва оголошення
+                        </label>
+                        <input asp-for="Title" class="form-control" placeholder="Введіть назву оголошення...">
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">
+                            <i class="fas fa-align-left me-1"></i>Опис
+                        </label>
+                        <textarea asp-for="Description" class="form-control" rows="6" 
+                                  placeholder="Детально опишіть ваше оголошення..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="form-text">Максимум 2000 символів</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CategoryId" class="form-label">
+                                    <i class="fas fa-folder me-1"></i>Категорія
+                                </label>
+                                <select asp-for="CategoryId" class="form-select" id="CategoryId">
+                                    <option value="">Оберіть категорію</option>
+                                    @if (Model.Categories != null)
+                                    {
+                                        @foreach (var category in Model.Categories)
+                                        {
+                                            <option value="@category.Id" selected="@(category.Id == Model.CategoryId)">
+                                                @category.Name
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="SubCategoryId" class="form-label">
+                                    <i class="fas fa-tags me-1"></i>Підкатегорія
+                                </label>
+                                <select asp-for="SubCategoryId" class="form-select" id="SubCategoryId">
+                                    <option value="">Завантаження...</option>
+                                </select>
+                                <span asp-validation-for="SubCategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label">
+                            <i class="fas fa-toggle-on me-1"></i>Статус
+                        </label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="true" selected="@Model.Status">Активне</option>
+                            <option value="false" selected="@(!Model.Status)">Неактивне</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                        <div class="form-text">Активні оголошення відображаються у пошуку</div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Увага:</strong> Зміни будуть збережені та відображені одразу після підтвердження.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <div>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@Model.Id" 
+                               class="btn btn-outline-info me-2">
+                                <i class="fas fa-eye me-1"></i>Переглянути
+                            </a>
+                            <a asp-controller="Announcements" asp-action="Delete" asp-route-id="@Model.Id" 
+                               class="btn btn-outline-danger">
+                                <i class="fas fa-trash me-1"></i>Видалити
+                            </a>
+                        </div>
+                        <div>
+                            <a asp-controller="Announcements" asp-action="MyAnnouncements" class="btn btn-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Скасувати
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-1"></i>Зберегти зміни
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            var initialCategoryId = '@Model.CategoryId';
+            var initialSubCategoryId = '@Model.SubCategoryId';
+            
+            // Завантажити підкатегорії для поточної категорії при завантаженні сторінки
+            if (initialCategoryId) {
+                loadSubCategories(initialCategoryId, initialSubCategoryId);
+            }
+
+            // Автоматичне завантаження підкатегорій при зміні категорії
+            $('#CategoryId').change(function() {
+                var categoryId = $(this).val();
+                loadSubCategories(categoryId, null);
+            });
+
+            function loadSubCategories(categoryId, selectedSubCategoryId) {
+                var subCategorySelect = $('#SubCategoryId');
+                
+                if (categoryId) {
+                    subCategorySelect.html('<option value="">Завантаження...</option>');
+                    
+                    console.log('Завантаження підкатегорій для категорії:', categoryId, 'обрана підкатегорія:', selectedSubCategoryId);
+                    $.get('@Url.Action("GetSubCategories", "Home")', { categoryId: categoryId })
+                        .done(function(data) {
+                            console.log('Отримані підкатегорії:', data);
+                            subCategorySelect.html('<option value="">Оберіть підкатегорію (необов\'язково)</option>');
+                            $.each(data, function(index, item) {
+                                console.log('Додавання підкатегорії:', item);
+                                var selected = selectedSubCategoryId && item.value == selectedSubCategoryId ? ' selected' : '';
+                                subCategorySelect.append('<option value="' + item.value + '"' + selected + '>' + item.text + '</option>');
+                            });
+                        })
+                        .fail(function(xhr, status, error) {
+                            subCategorySelect.html('<option value="">Помилка завантаження</option>');
+                            console.error('Помилка завантаження підкатегорій:', status, error, xhr.responseText);
+                        });
+                } else {
+                    subCategorySelect.html('<option value="">Спочатку оберіть категорію</option>');
+                }
+            }
+
+            // Підрахунок символів в описі
+            $('#Description').on('input', function() {
+                var length = $(this).val().length;
+                var maxLength = 2000;
+                var remaining = maxLength - length;
+                
+                var helpText = $(this).siblings('.form-text');
+                if (remaining < 100) {
+                    helpText.text('Залишилося символів: ' + remaining);
+                    helpText.removeClass('text-muted').addClass('text-warning');
+                } else {
+                    helpText.text('Максимум 2000 символів');
+                    helpText.removeClass('text-warning').addClass('text-muted');
+                }
+            });
+
+            // Попередження при виході без збереження
+            var formChanged = false;
+            var originalFormData = $('form').serialize();
+            
+            $('form input, form textarea, form select').on('change input', function() {
+                var currentFormData = $('form').serialize();
+                formChanged = originalFormData !== currentFormData;
+            });
+
+            $(window).on('beforeunload', function() {
+                if (formChanged) {
+                    return 'У вас є незбережені зміни. Ви впевнені, що хочете покинути сторінку?';
+                }
+            });
+
+            $('form').on('submit', function() {
+                formChanged = false;
+            });
+
+            // Підтвердження видалення
+            $('a[href*="Delete"]').on('click', function(e) {
+                if (!confirm('Ви впевнені, що хочете видалити це оголошення? Ця дія незворотна.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+} 

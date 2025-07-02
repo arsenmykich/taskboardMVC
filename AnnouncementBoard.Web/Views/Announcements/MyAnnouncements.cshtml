@@ -1,0 +1,293 @@
+@model IEnumerable<AnnouncementBoard.Core.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Мої оголошення";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="fas fa-list me-2"></i>Мої оголошення</h2>
+        <p class="text-muted mb-0">Керуйте своїми оголошеннями</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i>Створити нове
+    </a>
+</div>
+
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4>@Model.Count()</h4>
+                <p class="mb-0">Всього</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Count(a => a.Status)</h4>
+                    <p class="mb-0">Активних</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h4>@Model.Count(a => !a.Status)</h4>
+                    <p class="mb-0">Неактивних</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h4>@(Model.Any() ? Model.Max(a => a.CreatedDate).ToString("dd.MM") : "-")</h4>
+                <p class="mb-0">Останнє</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Фільтри -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Пошук по назві або опису...">
+            </div>
+            <div class="col-md-3">
+                <select id="statusFilter" class="form-select">
+                    <option value="">Всі статуси</option>
+                    <option value="true">Активні</option>
+                    <option value="false">Неактивні</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="categoryFilter" class="form-select">
+                    <option value="">Всі категорії</option>
+                    @foreach (var category in Model.GroupBy(a => a.Category).Select(g => g.Key).Distinct())
+                    {
+                        <option value="@category.Name">@category.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times"></i> Очистити
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="row" id="announcementsList">
+        @foreach (var announcement in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4 announcement-item" 
+                 data-title="@announcement.Title.ToLower()" 
+                 data-description="@announcement.Description.ToLower()" 
+                 data-status="@announcement.Status.ToString().ToLower()" 
+                 data-category="@announcement.Category.Name">
+                <div class="card h-100 shadow-sm announcement-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-tag me-1"></i>@announcement.Category.Name
+                            @if (announcement.SubCategory != null)
+                            {
+                                <span> / @announcement.SubCategory.Name</span>
+                            }
+                        </small>
+                        <span class="badge bg-@(announcement.Status ? "success" : "warning")">
+                            @(announcement.Status ? "Активне" : "Неактивне")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">@announcement.Title</h5>
+                        <p class="card-text text-muted">
+                            @(announcement.Description.Length > 100 ? 
+                              announcement.Description.Substring(0, 100) + "..." : 
+                              announcement.Description)
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                @announcement.CreatedDate.ToString("dd.MM.yyyy")
+                            </small>
+                            @if (announcement.UpdatedDate != announcement.CreatedDate)
+                            {
+                                <small class="text-info">
+                                    <i class="fas fa-edit me-1"></i>Оновлено
+                                </small>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@announcement.Id" 
+                               class="btn btn-outline-primary btn-sm" title="Переглянути">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@announcement.Id" 
+                               class="btn btn-outline-warning btn-sm" title="Редагувати">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                    data-bs-toggle="dropdown" title="Більше дій">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="toggleStatus(@announcement.Id, @announcement.Status.ToString().ToLower())">
+                                        <i class="fas fa-toggle-@(announcement.Status ? "off" : "on") me-1"></i>
+                                        @(announcement.Status ? "Деактивувати" : "Активувати")
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="copyLink('@Url.Action("Details", "Home", new { id = announcement.Id }, Context.Request.Scheme)')">
+                                        <i class="fas fa-link me-1"></i>Копіювати посилання
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@announcement.Id">
+                                        <i class="fas fa-trash me-1"></i>Видалити
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-bullhorn fa-5x text-muted mb-4"></i>
+        <h3 class="text-muted">У вас поки немає оголошень</h3>
+        <p class="text-muted mb-4">Створіть своє перше оголошення і почніть ділитися з іншими!</p>
+        <a asp-action="Create" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus me-2"></i>Створити перше оголошення
+        </a>
+    </div>
+}
+
+<!-- Toast для повідомлень -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="actionToast" class="toast" role="alert">
+        <div class="toast-header">
+            <i class="fas fa-info-circle text-primary me-2"></i>
+            <strong class="me-auto">Повідомлення</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            <!-- Повідомлення буде тут -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Пошук та фільтрація
+            $('#searchInput, #statusFilter, #categoryFilter').on('input change', function() {
+                filterAnnouncements();
+            });
+
+            function filterAnnouncements() {
+                var searchTerm = $('#searchInput').val().toLowerCase();
+                var statusFilter = $('#statusFilter').val();
+                var categoryFilter = $('#categoryFilter').val();
+
+                $('.announcement-item').each(function() {
+                    var $item = $(this);
+                    var title = $item.data('title');
+                    var description = $item.data('description');
+                    var status = $item.data('status').toString();
+                    var category = $item.data('category');
+
+                    var matchesSearch = !searchTerm || title.includes(searchTerm) || description.includes(searchTerm);
+                    var matchesStatus = !statusFilter || status === statusFilter;
+                    var matchesCategory = !categoryFilter || category === categoryFilter;
+
+                    if (matchesSearch && matchesStatus && matchesCategory) {
+                        $item.show();
+                    } else {
+                        $item.hide();
+                    }
+                });
+
+                // Оновити лічильник видимих елементів
+                var visibleCount = $('.announcement-item:visible').length;
+                $('#visibleCount').text(visibleCount);
+            }
+
+            // Анімація карток
+            $('.announcement-card').hover(
+                function() {
+                    $(this).addClass('shadow-lg').removeClass('shadow-sm');
+                },
+                function() {
+                    $(this).addClass('shadow-sm').removeClass('shadow-lg');
+                }
+            );
+
+            // Tooltip для кнопок
+            $('[title]').tooltip();
+        });
+
+        // Очистити фільтри
+        function clearFilters() {
+            $('#searchInput').val('');
+            $('#statusFilter').val('');
+            $('#categoryFilter').val('');
+            $('.announcement-item').show();
+        }
+
+        // Переключити статус оголошення
+        function toggleStatus(announcementId, currentStatus) {
+            // AJAX запит для зміни статусу
+            $.post('@Url.Action("ToggleStatus")', { 
+                id: announcementId,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            })
+                .done(function(response) {
+                    if (response.success) {
+                        showToast(response.message);
+                        location.reload(); // Перезавантажити сторінку для оновлення
+                    } else {
+                        showToast('Помилка при зміні статусу: ' + response.message, 'error');
+                    }
+                })
+                .fail(function() {
+                    showToast('Помилка при зміні статусу оголошення', 'error');
+                });
+        }
+
+        // Копіювати посилання
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(function() {
+                showToast('Посилання скопійовано в буфер обміну!');
+            }, function() {
+                showToast('Не вдалося скопіювати посилання', 'error');
+            });
+        }
+
+        // Показати toast повідомлення
+        function showToast(message, type = 'success') {
+            $('#toastMessage').text(message);
+            var toastEl = new bootstrap.Toast(document.getElementById('actionToast'));
+            toastEl.show();
+        }
+    </script>
+} 

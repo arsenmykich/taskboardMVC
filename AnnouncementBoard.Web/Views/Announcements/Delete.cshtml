@@ -1,0 +1,211 @@
+@model AnnouncementBoard.Core.Models.Announcement
+
+@{
+    ViewData["Title"] = "Видалити оголошення";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fas fa-home me-1"></i>Головна
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Announcements" asp-action="MyAnnouncements">
+                Мої оголошення
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Видалити</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Підтвердження видалення
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-warning me-2"></i>
+                    <strong>Увага!</strong> Ця дія незворотна. Оголошення буде видалено назавжди.
+                </div>
+
+                <h5 class="mb-3">Ви дійсно хочете видалити це оголошення?</h5>
+
+                <!-- Інформація про оголошення -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Інформація про оголошення</h6>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-3">Назва:</dt>
+                            <dd class="col-sm-9">@Model.Title</dd>
+
+                            <dt class="col-sm-3">Опис:</dt>
+                            <dd class="col-sm-9">
+                                @if (Model.Description.Length > 200)
+                                {
+                                    @Model.Description.Substring(0, 200)<text>...</text>
+                                }
+                                else
+                                {
+                                    @Model.Description
+                                }
+                            </dd>
+
+                            <dt class="col-sm-3">Категорія:</dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-primary">@Model.Category.Name</span>
+                                @if (Model.SubCategory != null)
+                                {
+                                    <span class="badge bg-secondary ms-1">@Model.SubCategory.Name</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-3">Статус:</dt>
+                            <dd class="col-sm-9">
+                                <span class="badge bg-@(Model.Status ? "success" : "warning")">
+                                    @(Model.Status ? "Активне" : "Неактивне")
+                                </span>
+                            </dd>
+
+                            <dt class="col-sm-3">Створено:</dt>
+                            <dd class="col-sm-9">@Model.CreatedDate.ToString("dd MMMM yyyy 'о' HH:mm")</dd>
+
+                            @if (Model.UpdatedDate != Model.CreatedDate)
+                            {
+                                <dt class="col-sm-3">Оновлено:</dt>
+                                <dd class="col-sm-9">@Model.UpdatedDate.ToString("dd MMMM yyyy 'о' HH:mm")</dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Контейнер для input -->
+                <div>
+                    <input asp-for="Id" type="hidden">
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                            <label class="form-check-label" for="confirmDelete">
+                                Я підтверджую, що хочу видалити це оголошення назавжди
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                        <div>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@Model.Id" 
+                               class="btn btn-outline-info me-2">
+                                <i class="fas fa-eye me-1"></i>Переглянути ще раз
+                            </a>
+                            <a asp-controller="Announcements" asp-action="Edit" asp-route-id="@Model.Id" 
+                               class="btn btn-outline-warning">
+                                <i class="fas fa-edit me-1"></i>Редагувати замість видалення
+                            </a>
+                        </div>
+                        <div>
+                            <a asp-controller="Announcements" asp-action="MyAnnouncements" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left me-1"></i>Скасувати
+                            </a>
+                            <button type="button" class="btn btn-danger" id="deleteButton" disabled>
+                                <i class="fas fa-trash me-1"></i>Видалити оголошення
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Увімкнути кнопку видалення після підтвердження
+            $('#confirmDelete').change(function() {
+                var deleteButton = $('#deleteButton');
+                if ($(this).is(':checked')) {
+                    deleteButton.prop('disabled', false);
+                } else {
+                    deleteButton.prop('disabled', true);
+                }
+            });
+
+            // Основна логіка видалення через AJAX
+            $('#deleteButton').click(function(e) {
+                console.log('*** КНОПКА ВИДАЛЕННЯ НАТИСНУТА ***');
+                
+                if (!$('#confirmDelete').is(':checked')) {
+                    alert('Будь ласка, поставте галочку для підтвердження видалення.');
+                    return false;
+                }
+                
+                if (!confirm('Останнє попередження! Ви дійсно хочете видалити це оголошення? Цю дію неможливо скасувати.')) {
+                    return false;
+                }
+                
+                var announcementId = $('input[name="Id"]').val();
+                console.log('ID для видалення:', announcementId);
+                
+                // Показати спінер
+                var $button = $(this);
+                var originalText = $button.html();
+                $button.html('<span class="spinner-border spinner-border-sm me-2" role="status"></span>Видалення...')
+                       .prop('disabled', true);
+                
+                // AJAX запит для видалення
+                $.ajax({
+                    url: '/Announcements/DeleteAjax',
+                    type: 'POST',
+                    data: { id: announcementId },
+                    success: function(response) {
+                        console.log('*** ВИДАЛЕННЯ УСПІШНЕ ***', response);
+                        if (response.success) {
+                            // Показати повідомлення про успіх
+                            if (typeof Utils !== 'undefined' && Utils.showToast) {
+                                Utils.showToast('Оголошення успішно видалено!', 'success');
+                            }
+                            // Перенаправити на список оголошень
+                            setTimeout(function() {
+                                window.location.href = '/Announcements/MyAnnouncements';
+                            }, 1000);
+                        } else {
+                            // Показати помилку
+                            alert('Помилка: ' + response.message);
+                            $button.html(originalText).prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('*** ПОМИЛКА ВИДАЛЕННЯ ***', error);
+                        alert('Сталася помилка при видаленні оголошення. Спробуйте ще раз.');
+                        $button.html(originalText).prop('disabled', false);
+                    }
+                });
+            });
+
+            // Попередження при спробі покинути сторінку
+            $(window).on('beforeunload', function() {
+                return 'Ви справді хочете покинути сторінку?';
+            });
+
+            // Прибрати попередження при успішному видаленні
+            $(document).on('click', '#deleteButton', function() {
+                $(window).off('beforeunload');
+            });
+
+            // Анімація для небезпечної зони
+            $('.border-danger').addClass('border-3');
+            
+            setInterval(function() {
+                $('.bg-danger').fadeTo(500, 0.7).fadeTo(500, 1);
+            }, 2000);
+        });
+    </script>
+} 
