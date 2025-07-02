@@ -24,6 +24,9 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Register Data Seeding Service - commented out after initial seeding
+// builder.Services.AddScoped<IDataSeedingService, DataSeedingService>();
+
 // Add Authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -60,5 +63,13 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Data seeding completed - removed to prevent duplicates
+// Uncomment below if you need to reseed data:
+// using (var scope = app.Services.CreateScope())
+// {
+//     var seeder = scope.ServiceProvider.GetRequiredService<IDataSeedingService>();
+//     await seeder.SeedDataAsync();
+// }
 
 app.Run();

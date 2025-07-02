@@ -73,8 +73,8 @@ namespace AnnouncementBoard.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Seed data
-            SeedData(modelBuilder);
+            // Seed data - commented out to create lighter migrations
+            // SeedData(modelBuilder);
         }
 
         private void SeedData(ModelBuilder modelBuilder)
