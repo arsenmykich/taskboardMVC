@@ -22,8 +22,6 @@ public class HomeController : Controller
         _categoryService = categoryService;
     }
 
-
-
     public async Task<IActionResult> Index(string? searchTerm, int? categoryId, int? subCategoryId)
     {
         try
@@ -36,9 +34,13 @@ public class HomeController : Controller
             {
                 announcements = await _announcementService.SearchAnnouncementsAsync(searchTerm);
             }
+            else if (subCategoryId.HasValue)
+            {
+                announcements = await _announcementService.GetAnnouncementsBySubCategoryAsync(subCategoryId.Value);
+            }
             else if (categoryId.HasValue)
             {
-                announcements = await _announcementService.GetAnnouncementsByCategoryAsync(categoryId.Value, subCategoryId);
+                announcements = await _announcementService.GetAnnouncementsByCategoryAsync(categoryId.Value);
             }
 
             var selectedCategory = categoryId.HasValue ? 

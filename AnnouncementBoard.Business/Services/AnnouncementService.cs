@@ -27,13 +27,14 @@ namespace AnnouncementBoard.Business.Services
             return await _unitOfWork.Announcements.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Announcement>> GetAnnouncementsByCategoryAsync(int categoryId, int? subCategoryId = null)
+        public async Task<IEnumerable<Announcement>> GetAnnouncementsByCategoryAsync(int categoryId)
         {
-            if (subCategoryId.HasValue)
-            {
-                return await _unitOfWork.Announcements.GetAnnouncementsBySubCategoryAsync(subCategoryId.Value);
-            }
             return await _unitOfWork.Announcements.GetAnnouncementsByCategoryAsync(categoryId);
+        }
+
+        public async Task<IEnumerable<Announcement>> GetAnnouncementsBySubCategoryAsync(int subCategoryId)
+        {
+            return await _unitOfWork.Announcements.GetAnnouncementsBySubCategoryAsync(subCategoryId);
         }
 
         public async Task<IEnumerable<Announcement>> GetAnnouncementsByUserAsync(string userId)
@@ -136,78 +137,6 @@ namespace AnnouncementBoard.Business.Services
             // Використовуємо простий запит з GenericRepository
             var announcement = await _unitOfWork.Announcements.SingleOrDefaultAsync(a => a.Id == announcementId);
             return announcement != null && announcement.UserId == userId;
-        }
-
-        public async Task<Announcement> CreateAnnouncementStoredProcAsync(Announcement announcement)
-        {
-            // Business logic validation
-            if (string.IsNullOrWhiteSpace(announcement.Title))
-                throw new ArgumentException("Заголовок оголошення не може бути пустим");
-
-            if (string.IsNullOrWhiteSpace(announcement.Description))
-                throw new ArgumentException("Опис оголошення не може бути пустим");
-
-            if (string.IsNullOrWhiteSpace(announcement.UserId))
-                throw new ArgumentException("Користувач повинен бути автентифікований");
-
-            // Validate category and subcategory exist
-            var category = await _unitOfWork.Categories.GetByIdAsync(announcement.CategoryId);
-            if (category == null)
-                throw new ArgumentException("Обрана категорія не існує");
-
-            var subCategory = await _unitOfWork.SubCategories.GetByIdAsync(announcement.SubCategoryId);
-            if (subCategory == null || subCategory.CategoryId != announcement.CategoryId)
-                throw new ArgumentException("Обрана підкатегорія не існує або не належить до обраної категорії");
-
-            // Set timestamps
-            announcement.CreatedDate = DateTime.UtcNow;
-            announcement.UpdatedDate = DateTime.UtcNow;
-            announcement.Status = true; // Active by default
-
-            return await _unitOfWork.Announcements.CreateAnnouncementStoredProcAsync(announcement);
-        }
-
-        public async Task UpdateAnnouncementStoredProcAsync(Announcement announcement)
-        {
-            // Business logic validation
-            if (string.IsNullOrWhiteSpace(announcement.Title))
-                throw new ArgumentException("Заголовок оголошення не може бути пустим");
-
-            if (string.IsNullOrWhiteSpace(announcement.Description))
-                throw new ArgumentException("Опис оголошення не може бути пустим");
-
-            // Validate category and subcategory exist
-            var category = await _unitOfWork.Categories.GetByIdAsync(announcement.CategoryId);
-            if (category == null)
-                throw new ArgumentException("Обрана категорія не існує");
-
-            var subCategory = await _unitOfWork.SubCategories.GetByIdAsync(announcement.SubCategoryId);
-            if (subCategory == null || subCategory.CategoryId != announcement.CategoryId)
-                throw new ArgumentException("Обрана підкатегорія не існує або не належить до обраної категорії");
-
-            announcement.UpdatedDate = DateTime.UtcNow;
-
-            await _unitOfWork.Announcements.UpdateAnnouncementStoredProcAsync(announcement);
-        }
-
-        public async Task DeleteAnnouncementStoredProcAsync(int id)
-        {
-            // Check if announcement exists and get user permission first
-            var announcement = await _unitOfWork.Announcements.GetByIdAsync(id);
-            if (announcement == null)
-                throw new ArgumentException("Оголошення не знайдено");
-
-            await _unitOfWork.Announcements.DeleteAnnouncementStoredProcAsync(id);
-        }
-
-        public async Task<Announcement?> GetAnnouncementByIdStoredProcAsync(int id)
-        {
-            return await _unitOfWork.Announcements.GetAnnouncementByIdStoredProcAsync(id);
-        }
-
-        public async Task<IEnumerable<Announcement>> GetAllAnnouncementsStoredProcAsync()
-        {
-            return await _unitOfWork.Announcements.GetAllAnnouncementsStoredProcAsync();
         }
     }
 } 

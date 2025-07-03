@@ -39,22 +39,7 @@ namespace AnnouncementBoard.Web.Controllers
         [HttpPost]
         public IActionResult LoginWithGoogle(string? returnUrl = null)
         {
-            // Explicitly construct the absolute URL
-            var scheme = Request.Scheme;
-            var host = Request.Host.Value;
-            var callbackPath = "/Account/GoogleCallback";
-            var redirectUrl = $"{scheme}://{host}{callbackPath}";
-            
-            if (!string.IsNullOrEmpty(returnUrl))
-            {
-                redirectUrl += $"?returnUrl={Uri.EscapeDataString(returnUrl)}";
-            }
-            
-            // Add debugging to see exact redirect URL
-            _logger.LogInformation($"Generated redirect URL for Google OAuth: {redirectUrl}");
-            _logger.LogInformation($"Current request scheme: {Request.Scheme}");
-            _logger.LogInformation($"Current request host: {Request.Host}");
-            
+            var redirectUrl = Url.Action("GoogleCallback", "Account", new { returnUrl });
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             return Challenge(properties, GoogleDefaults.AuthenticationScheme);
         }

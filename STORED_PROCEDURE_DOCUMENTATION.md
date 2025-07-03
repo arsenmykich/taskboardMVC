@@ -1,296 +1,125 @@
-# Документація збережених процедур SQL Server
+# Документація збереженої функції sp_GetUserAnnouncements
 
 ## Опис
-Система оголошень була мігрована з PostgreSQL на **Microsoft SQL Server** з повним набором збережених процедур для всіх CRUD операцій відповідно до вимог тестового завдання.
+Збережена функція `sp_GetUserAnnouncements` реалізована для оптимізації отримання оголошень конкретного користувача з бази даних PostgreSQL. Функція замінює стандартний LINQ запит Entity Framework на більш ефективний SQL запит на рівні бази даних.
 
-## Список збережених процедур
+## Місце в архітектурі
+- **Контроллер**: `AnnouncementsController.MyAnnouncementsStoredProc()`
+- **Сервіс**: `AnnouncementService.GetAnnouncementsByUserStoredProcAsync()`
+- **Репозиторій**: `AnnouncementRepository.GetAnnouncementsByUserStoredProcAsync()`
+- **Збережена функція**: `sp_GetUserAnnouncements`
 
-### 1. sp_CreateAnnouncement
-**Призначення:** Створення нового оголошення
-
-**Параметри:**
-- `@Title` NVARCHAR(200) - Заголовок оголошення
-- `@Description` NVARCHAR(2000) - Опис оголошення
-- `@CategoryId` INT - ID категорії
-- `@SubCategoryId` INT - ID підкатегорії
-- `@UserId` NVARCHAR(450) - ID користувача
-- `@Status` BIT - Статус оголошення (1 - активне, 0 - неактивне)
-- `@CreatedDate` DATETIME2 - Дата створення
-- `@UpdatedDate` DATETIME2 - Дата оновлення
-
-**Повертає:** ID створеного оголошення (SCOPE_IDENTITY)
-
+## PostgreSQL код функції
 ```sql
-CREATE PROCEDURE sp_CreateAnnouncement
-    @Title NVARCHAR(200),
-    @Description NVARCHAR(2000),
-    @CategoryId INT,
-    @SubCategoryId INT,
-    @UserId NVARCHAR(450),
-    @Status BIT,
-    @CreatedDate DATETIME2,
-    @UpdatedDate DATETIME2
-AS
+CREATE OR REPLACE FUNCTION sp_GetUserAnnouncements(p_userid VARCHAR(450))
+RETURNS TABLE(
+    Id INTEGER,
+    Title VARCHAR(200),
+    Description VARCHAR(2000),
+    CategoryId INTEGER,
+    SubCategoryId INTEGER,
+    UserId VARCHAR(450),
+    Status BOOLEAN,
+    CreatedDate TIMESTAMP,
+    UpdatedDate TIMESTAMP,
+    CategoryName VARCHAR(100),
+    CategoryDescription VARCHAR(500),
+    CategoryCreatedAt TIMESTAMP,
+    SubCategoryName VARCHAR(100),
+    SubCategoryDescription VARCHAR(500),
+    SubCategoryCategoryId INTEGER,
+    SubCategoryCreatedAt TIMESTAMP
+) AS $$
 BEGIN
-    INSERT INTO Announcements (Title, Description, CategoryId, SubCategoryId, UserId, Status, CreatedDate, UpdatedDate)
-    VALUES (@Title, @Description, @CategoryId, @SubCategoryId, @UserId, @Status, @CreatedDate, @UpdatedDate)
-    
-    SELECT SCOPE_IDENTITY() AS Id
-END
-```
-
-### 2. sp_UpdateAnnouncement
-**Призначення:** Оновлення існуючого оголошення
-
-**Параметри:**
-- `@Id` INT - ID оголошення для оновлення
-- `@Title` NVARCHAR(200) - Новий заголовок
-- `@Description` NVARCHAR(2000) - Новий опис
-- `@CategoryId` INT - Новий ID категорії
-- `@SubCategoryId` INT - Новий ID підкатегорії
-- `@Status` BIT - Новий статус
-- `@UpdatedDate` DATETIME2 - Дата оновлення
-
-```sql
-CREATE PROCEDURE sp_UpdateAnnouncement
-    @Id INT,
-    @Title NVARCHAR(200),
-    @Description NVARCHAR(2000),
-    @CategoryId INT,
-    @SubCategoryId INT,
-    @Status BIT,
-    @UpdatedDate DATETIME2
-AS
-BEGIN
-    UPDATE Announcements 
-    SET Title = @Title,
-        Description = @Description,
-        CategoryId = @CategoryId,
-        SubCategoryId = @SubCategoryId,
-        Status = @Status,
-        UpdatedDate = @UpdatedDate
-    WHERE Id = @Id
-END
-```
-
-### 3. sp_DeleteAnnouncement
-**Призначення:** Видалення оголошення
-
-**Параметри:**
-- `@Id` INT - ID оголошення для видалення
-
-```sql
-CREATE PROCEDURE sp_DeleteAnnouncement
-    @Id INT
-AS
-BEGIN
-    DELETE FROM Announcements WHERE Id = @Id
-END
-```
-
-### 4. sp_GetAnnouncementById
-**Призначення:** Отримання оголошення за ID
-
-**Параметри:**
-- `@Id` INT - ID оголошення
-
-**Повертає:** Дані оголошення
-
-```sql
-CREATE PROCEDURE sp_GetAnnouncementById
-    @Id INT
-AS
-BEGIN
+    RETURN QUERY
     SELECT 
-        a.Id,
-        a.Title,
-        a.Description,
-        a.Status,
-        a.CreatedDate,
-        a.UpdatedDate,
-        a.UserId,
-        a.CategoryId,
-        a.SubCategoryId
-    FROM Announcements a
-    WHERE a.Id = @Id
-END
+        a."Id",
+        a."Title",
+        a."Description",
+        a."CategoryId",
+        a."SubCategoryId",
+        a."UserId",
+        a."Status",
+        a."CreatedDate",
+        a."UpdatedDate",
+        c."Name" AS CategoryName,
+        c."Description" AS CategoryDescription,
+        c."CreatedAt" AS CategoryCreatedAt,
+        sc."Name" AS SubCategoryName,
+        sc."Description" AS SubCategoryDescription,
+        sc."CategoryId" AS SubCategoryCategoryId,
+        sc."CreatedAt" AS SubCategoryCreatedAt
+    FROM "Announcements" a
+    INNER JOIN "Categories" c ON a."CategoryId" = c."Id"
+    INNER JOIN "SubCategories" sc ON a."SubCategoryId" = sc."Id"
+    WHERE a."UserId" = p_userid
+    ORDER BY a."CreatedDate" DESC;
+END;
+$$ LANGUAGE plpgsql;
 ```
 
-### 5. sp_GetAllAnnouncements
-**Призначення:** Отримання всіх оголошень
+## Параметри
+- `p_userid` (VARCHAR(450)) - Ідентифікатор користувача для фільтрації оголошень
 
-**Повертає:** Список всіх оголошень упорядкований за датою створення
+## Повертає
+Результуючий набір містить:
+- Всі поля оголошень (Announcements)
+- Інформацію про категорії (Categories)
+- Інформацію про підкатегорії (SubCategories)
 
-```sql
-CREATE PROCEDURE sp_GetAllAnnouncements
-AS
-BEGIN
-    SELECT 
-        a.Id,
-        a.Title,
-        a.Description,
-        a.Status,
-        a.CreatedDate,
-        a.UpdatedDate,
-        a.UserId,
-        a.CategoryId,
-        a.SubCategoryId
-    FROM Announcements a
-    ORDER BY a.CreatedDate DESC
-END
-```
+## Використання
 
-### 6. sp_GetUserAnnouncements
-**Призначення:** Отримання оголошень конкретного користувача
-
-**Параметри:**
-- `@UserId` NVARCHAR(450) - ID користувача
-
-**Повертає:** Список оголошень користувача упорядкований за датою створення
-
-```sql
-CREATE PROCEDURE sp_GetUserAnnouncements
-    @UserId NVARCHAR(450)
-AS
-BEGIN
-    SELECT 
-        a.Id,
-        a.Title,
-        a.Description,
-        a.Status,
-        a.CreatedDate,
-        a.UpdatedDate,
-        a.UserId,
-        a.CategoryId,
-        a.SubCategoryId
-    FROM Announcements a
-    WHERE a.UserId = @UserId
-    ORDER BY a.CreatedDate DESC
-END
-```
-
-## Використання в коді
-
-### Репозиторій (AnnouncementRepository.cs)
-
+### В контроллері
 ```csharp
-public async Task<Announcement> CreateAnnouncementStoredProcAsync(Announcement announcement)
+// GET: /Announcements/MyAnnouncementsStoredProc
+public async Task<IActionResult> MyAnnouncementsStoredProc()
 {
-    var parameters = new[]
-    {
-        new SqlParameter("@Title", announcement.Title),
-        new SqlParameter("@Description", announcement.Description),
-        new SqlParameter("@CategoryId", announcement.CategoryId),
-        new SqlParameter("@SubCategoryId", announcement.SubCategoryId),
-        new SqlParameter("@UserId", announcement.UserId),
-        new SqlParameter("@Status", announcement.Status),
-        new SqlParameter("@CreatedDate", announcement.CreatedDate),
-        new SqlParameter("@UpdatedDate", announcement.UpdatedDate)
-    };
-
-    var result = await _context.Database.ExecuteSqlRawAsync(
-        "EXEC sp_CreateAnnouncement @Title, @Description, @CategoryId, @SubCategoryId, @UserId, @Status, @CreatedDate, @UpdatedDate",
-        parameters);
-
-    return announcement;
+    var userId = await GetCurrentUserIdAsync();
+    var announcements = await _announcementService.GetAnnouncementsByUserStoredProcAsync(userId);
+    return View("MyAnnouncements", announcements);
 }
 ```
 
-### Сервіс (AnnouncementService.cs)
-
+### В сервісі
 ```csharp
-public async Task<Announcement> CreateAnnouncementStoredProcAsync(Announcement announcement)
+public async Task<IEnumerable<Announcement>> GetAnnouncementsByUserStoredProcAsync(string userId)
 {
-    // Business logic validation
-    ValidateAnnouncement(announcement);
-    
-    // Set timestamps
-    announcement.CreatedDate = DateTime.UtcNow;
-    announcement.UpdatedDate = DateTime.UtcNow;
-    announcement.Status = true;
-
-    return await _unitOfWork.Announcements.CreateAnnouncementStoredProcAsync(announcement);
+    return await _unitOfWork.Announcements.GetAnnouncementsByUserStoredProcAsync(userId);
 }
 ```
 
-### Контролер (AnnouncementsController.cs)
-
+### В репозиторії
 ```csharp
-[HttpPost]
-public async Task<IActionResult> CreateWithStoredProc(AnnouncementViewModel model)
+public async Task<IEnumerable<Announcement>> GetAnnouncementsByUserStoredProcAsync(string userId)
 {
-    if (ModelState.IsValid)
-    {
-        var announcement = new Announcement
-        {
-            Title = model.Title,
-            Description = model.Description,
-            CategoryId = model.CategoryId,
-            SubCategoryId = model.SubCategoryId,
-            UserId = await GetCurrentUserIdAsync(),
-            Status = model.Status
-        };
-
-        await _announcementService.CreateAnnouncementStoredProcAsync(announcement);
-        return RedirectToAction(nameof(MyAnnouncements));
-    }
-    return View(model);
+    return await _context.Set<Announcement>()
+        .FromSqlRaw("SELECT * FROM sp_GetUserAnnouncements({0})", userId)
+        .Include(a => a.Category)
+        .Include(a => a.SubCategory)
+        .AsNoTracking()
+        .ToListAsync();
 }
 ```
 
-## Архітектура системи
+## Переваги збереженої функції
+1. **Продуктивність**: Швидше виконання через компіляцію на рівні БД
+2. **Менше мережевого трафіку**: Один виклик замість множинних запитів
+3. **Кешування планів виконання**: PostgreSQL кешує план виконання
+4. **Централізована логіка**: Бізнес-логіка на рівні бази даних
 
-### Міграція
-Збережені процедури створюються автоматично через міграцію Entity Framework:
-- **Файл міграції:** `20250703142341_InitialCreateWithStoredProcedures.cs`
-- **Команда створення:** `dotnet ef migrations add InitialCreateWithStoredProcedures`
-- **Команда застосування:** `dotnet ef database update`
-
-### Підключення до бази даних
-```json
-{
-  "ConnectionStrings": {
-    "TaskboardDB": "Server=(localdb)\\mssqllocaldb;Database=AnnouncementBoard;Trusted_Connection=true;MultipleActiveResultSets=true"
-  }
-}
-```
-
-### Налаштування Entity Framework
-```csharp
-builder.Services.AddDbContext<AnnouncementBoardDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskboardDB")));
-```
-
-## Переваги збережених процедур
-
-1. **Продуктивність:** Планування виконання на рівні СУБД
-2. **Безпека:** Захист від SQL Injection
-3. **Централізована логіка:** Бізнес-логіка на рівні бази даних
-4. **Кешування:** SQL Server кешує плани виконання
-5. **Аудит:** Простше відстежувати виклики процедур
-
-## Порівняння з Entity Framework
-
-| Аспект | Збережені процедури | Entity Framework |
-|--------|-------------------|------------------|
-| Продуктивність | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| Безпека | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Підтримка | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Портабельність | ⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Компактність коду | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+## Міграція
+Збережена функція додається до бази даних через міграцію Entity Framework:
+- **Файл**: `20250702153037_AddGetUserAnnouncementsProcedure.cs`
+- **Команда створення**: `dotnet ef migrations add AddGetUserAnnouncementsProcedure`
+- **Команда застосування**: `dotnet ef database update`
 
 ## Статус міграції
-✅ **ЗАСТОСОВАНО** - Всі збережені процедури успішно створені в базі даних SQL Server
+✅ **ЗАСТОСОВАНО** - Міграція успішно застосована до бази даних PostgreSQL
 
 ## Тестування
-Для перевірки роботи збережених процедур:
-1. Запустіть додаток: `dotnet run --project AnnouncementBoard.Web`
-2. Використовуйте методи з суфіксом `StoredProc` у сервісах
-3. Перевірте логи виконання SQL команд
+Для перевірки роботи збереженої функції відвідайте:
+```
+GET /Announcements/MyAnnouncementsStoredProc
+```
 
-## Розгортання на Azure
-Для розгортання на Azure App Service з SQL Server:
-1. Створіть Azure SQL Database
-2. Оновіть connection string в appsettings.json
-3. Застосуйте міграції: `dotnet ef database update`
-4. Розгорніть додаток на Azure App Service 
+Цей endpoint використовує збережену функцію PostgreSQL замість стандартного LINQ запиту. 
