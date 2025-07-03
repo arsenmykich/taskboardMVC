@@ -118,6 +118,10 @@ dotnet run --project AnnouncementBoard.Web
 5. Перевірте роботу на мобільному пристрої.
 
 ---
+## Історія деплоїв
+![image](https://github.com/user-attachments/assets/fa72bdf4-b564-4f29-a538-586961dbf451)
+
+
 
 ## 📞 Контакти
 
