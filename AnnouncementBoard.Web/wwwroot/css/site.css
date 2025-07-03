@@ -73,6 +73,13 @@ body {
 .navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1000;
+}
+
+/* Додатково для контейнера navbar */
+.navbar .container {
+    position: relative;
 }
 
 .nav-link {
@@ -314,6 +321,7 @@ body {
     border: none;
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     padding: 0.5rem 0;
+    z-index: 9999 !important;
 }
 
 .dropdown-item {
@@ -325,6 +333,44 @@ body {
     background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
     color: white;
     transform: translateX(5px);
+}
+
+/* Додаткові стилі для правильного відображення dropdown */
+.dropdown-toggle {
+    position: relative;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    z-index: 9999 !important;
+    position: absolute !important;
+}
+
+/* Додатково для navbar dropdown */
+.navbar .dropdown-menu {
+    z-index: 9999 !important;
+}
+
+.navbar .dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Специфічно для Bootstrap navbar dropdown */
+.navbar-nav .dropdown-menu {
+    z-index: 9999 !important;
+    position: absolute !important;
+}
+
+.navbar-nav .dropdown-menu.show {
+    z-index: 9999 !important;
+}
+
+/* Забезпечення правильного відображення поверх всіх елементів */
+.navbar .nav-item.dropdown .dropdown-menu {
+    z-index: 9999 !important;
+    position: absolute !important;
+    top: 100% !important;
 }
 
 /* Toast */

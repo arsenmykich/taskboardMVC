@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9XaJBJiSg6o=",
+  "dgSpecHash": "2SbR26RR0rA=",
   "success": true,
-  "projectFilePath": "/Users/user/projects/devcom test/taskboardMVC/AnnouncementBoard.Core/AnnouncementBoard.Core.csproj",
+  "projectFilePath": "D:\\dotnet\\test tasks\\devcom-test-sql-func\\taskboardMVC\\AnnouncementBoard.Core\\AnnouncementBoard.Core.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
