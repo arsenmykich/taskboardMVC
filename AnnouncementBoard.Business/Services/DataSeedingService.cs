@@ -7,7 +7,6 @@ namespace AnnouncementBoard.Business.Services
     public interface IDataSeedingService
     {
         Task SeedDataAsync();
-        Task ReseedDataAsync();
     }
 
     public class DataSeedingService : IDataSeedingService
@@ -19,40 +18,6 @@ namespace AnnouncementBoard.Business.Services
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-        }
-
-        public async Task ReseedDataAsync()
-        {
-            try
-            {
-                _logger.LogInformation("Starting data reseeding with correct Unicode...");
-
-                // Очищення існуючих даних
-                var existingSubCategories = await _unitOfWork.SubCategories.GetAllAsync();
-                foreach (var subCategory in existingSubCategories)
-                {
-                    _unitOfWork.SubCategories.Remove(subCategory);
-                }
-
-                var existingCategories = await _unitOfWork.Categories.GetAllAsync();
-                foreach (var category in existingCategories)
-                {
-                    _unitOfWork.Categories.Remove(category);
-                }
-
-                await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Existing data cleared.");
-
-                // Внесення нових даних з правильним Unicode
-                await SeedCategoriesAndSubCategories();
-
-                _logger.LogInformation("Data reseeding completed successfully!");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred during data reseeding.");
-                throw;
-            }
         }
 
         public async Task SeedDataAsync()
@@ -68,7 +33,70 @@ namespace AnnouncementBoard.Business.Services
                 }
 
                 _logger.LogInformation("Starting data seeding...");
-                await SeedCategoriesAndSubCategories();
+
+                var seedDate = DateTime.UtcNow;
+
+                // Seed Categories
+                var categories = new[]
+                {
+                    new Category { Name = "Побутова техніка", Description = "Техніка для дому", CreatedAt = seedDate },
+                    new Category { Name = "Комп'ютерна техніка", Description = "Комп'ютери та комплектуючі", CreatedAt = seedDate },
+                    new Category { Name = "Смартфони", Description = "Мобільні телефони", CreatedAt = seedDate },
+                    new Category { Name = "Інше", Description = "Різне", CreatedAt = seedDate }
+                };
+
+                foreach (var category in categories)
+                {
+                    await _unitOfWork.Categories.AddAsync(category);
+                }
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("Categories seeded successfully.");
+
+                // Get seeded categories with their IDs
+                var seededCategories = await _unitOfWork.Categories.GetAllAsync();
+                var homeAppliances = seededCategories.First(c => c.Name == "Побутова техніка");
+                var computers = seededCategories.First(c => c.Name == "Комп'ютерна техніка");
+                var smartphones = seededCategories.First(c => c.Name == "Смартфони");
+                var other = seededCategories.First(c => c.Name == "Інше");
+
+                // Seed SubCategories
+                var subCategories = new[]
+                {
+                    // Побутова техніка
+                    new SubCategory { Name = "Холодильники", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Пральні машини", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Бойлери", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Печі", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Витяжки", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Мікрохвильові печі", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
+                    
+                    // Комп'ютерна техніка
+                    new SubCategory { Name = "ПК", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Ноутбуки", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Монітори", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Принтери", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Сканери", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
+                    
+                    // Смартфони
+                    new SubCategory { Name = "Android смартфони", Description = "", CategoryId = smartphones.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "iOS/Apple смартфони", Description = "", CategoryId = smartphones.Id, CreatedAt = seedDate },
+                    
+                    // Інше
+                    new SubCategory { Name = "Одяг", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Взуття", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Аксесуари", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Спортивне обладнання", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
+                    new SubCategory { Name = "Іграшки", Description = "", CategoryId = other.Id, CreatedAt = seedDate }
+                };
+
+                foreach (var subCategory in subCategories)
+                {
+                    await _unitOfWork.SubCategories.AddAsync(subCategory);
+                }
+                await _unitOfWork.SaveChangesAsync();
+
+                _logger.LogInformation("SubCategories seeded successfully.");
                 _logger.LogInformation("Data seeding completed successfully!");
             }
             catch (Exception ex)
@@ -76,73 +104,6 @@ namespace AnnouncementBoard.Business.Services
                 _logger.LogError(ex, "Error occurred during data seeding.");
                 throw;
             }
-        }
-
-        private async Task SeedCategoriesAndSubCategories()
-        {
-            var seedDate = DateTime.UtcNow;
-
-            // Seed Categories з правильним Unicode
-            var categories = new[]
-            {
-                new Category { Name = "Побутова техніка", Description = "Техніка для дому", CreatedAt = seedDate },
-                new Category { Name = "Комп'ютерна техніка", Description = "Комп'ютери та комплектуючі", CreatedAt = seedDate },
-                new Category { Name = "Смартфони", Description = "Мобільні телефони", CreatedAt = seedDate },
-                new Category { Name = "Інше", Description = "Різне", CreatedAt = seedDate }
-            };
-
-            foreach (var category in categories)
-            {
-                await _unitOfWork.Categories.AddAsync(category);
-            }
-            await _unitOfWork.SaveChangesAsync();
-
-            _logger.LogInformation("Categories seeded successfully.");
-
-            // Get seeded categories with their IDs
-            var seededCategories = await _unitOfWork.Categories.GetAllAsync();
-            var homeAppliances = seededCategories.First(c => c.Name == "Побутова техніка");
-            var computers = seededCategories.First(c => c.Name == "Комп'ютерна техніка");
-            var smartphones = seededCategories.First(c => c.Name == "Смартфони");
-            var other = seededCategories.First(c => c.Name == "Інше");
-
-            // Seed SubCategories з правильним Unicode
-            var subCategories = new[]
-            {
-                // Побутова техніка
-                new SubCategory { Name = "Холодильники", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Пральні машини", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Бойлери", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Печі", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Витяжки", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Мікрохвильові печі", Description = "", CategoryId = homeAppliances.Id, CreatedAt = seedDate },
-                
-                // Комп'ютерна техніка
-                new SubCategory { Name = "ПК", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Ноутбуки", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Монітори", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Принтери", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Сканери", Description = "", CategoryId = computers.Id, CreatedAt = seedDate },
-                
-                // Смартфони
-                new SubCategory { Name = "Android смартфони", Description = "", CategoryId = smartphones.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "iOS/Apple смартфони", Description = "", CategoryId = smartphones.Id, CreatedAt = seedDate },
-                
-                // Інше
-                new SubCategory { Name = "Одяг", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Взуття", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Аксесуари", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Спортивне обладнання", Description = "", CategoryId = other.Id, CreatedAt = seedDate },
-                new SubCategory { Name = "Іграшки", Description = "", CategoryId = other.Id, CreatedAt = seedDate }
-            };
-
-            foreach (var subCategory in subCategories)
-            {
-                await _unitOfWork.SubCategories.AddAsync(subCategory);
-            }
-            await _unitOfWork.SaveChangesAsync();
-
-            _logger.LogInformation("SubCategories seeded successfully.");
         }
     }
 } 

@@ -1,7 +1,6 @@
 using AnnouncementBoard.Core.Interfaces;
 using AnnouncementBoard.Core.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
 
 namespace AnnouncementBoard.Data.Repositories
 {
@@ -11,76 +10,6 @@ namespace AnnouncementBoard.Data.Repositories
         {
         }
 
-        // CRUD operations using stored procedures
-
-        public async Task<Announcement> CreateAnnouncementStoredProcAsync(Announcement announcement)
-        {
-            var parameters = new[]
-            {
-                new SqlParameter("@Title", announcement.Title),
-                new SqlParameter("@Description", announcement.Description),
-                new SqlParameter("@CategoryId", announcement.CategoryId),
-                new SqlParameter("@SubCategoryId", announcement.SubCategoryId),
-                new SqlParameter("@UserId", announcement.UserId),
-                new SqlParameter("@Status", announcement.Status),
-                new SqlParameter("@CreatedDate", announcement.CreatedDate),
-                new SqlParameter("@UpdatedDate", announcement.UpdatedDate)
-            };
-
-            var result = await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_CreateAnnouncement @Title, @Description, @CategoryId, @SubCategoryId, @UserId, @Status, @CreatedDate, @UpdatedDate",
-                parameters);
-
-            // Get the created announcement (this is a simplified approach)
-            return announcement;
-        }
-
-        public async Task UpdateAnnouncementStoredProcAsync(Announcement announcement)
-        {
-            var parameters = new[]
-            {
-                new SqlParameter("@Id", announcement.Id),
-                new SqlParameter("@Title", announcement.Title),
-                new SqlParameter("@Description", announcement.Description),
-                new SqlParameter("@CategoryId", announcement.CategoryId),
-                new SqlParameter("@SubCategoryId", announcement.SubCategoryId),
-                new SqlParameter("@Status", announcement.Status),
-                new SqlParameter("@UpdatedDate", announcement.UpdatedDate)
-            };
-
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_UpdateAnnouncement @Id, @Title, @Description, @CategoryId, @SubCategoryId, @Status, @UpdatedDate",
-                parameters);
-        }
-
-        public async Task DeleteAnnouncementStoredProcAsync(int id)
-        {
-            var parameter = new SqlParameter("@Id", id);
-            await _context.Database.ExecuteSqlRawAsync("EXEC sp_DeleteAnnouncement @Id", parameter);
-        }
-
-        public async Task<Announcement?> GetAnnouncementByIdStoredProcAsync(int id)
-        {
-            var parameter = new SqlParameter("@Id", id);
-            return await _context.Announcements
-                .FromSqlRaw("EXEC sp_GetAnnouncementById @Id", parameter)
-                .Include(a => a.User)
-                .Include(a => a.Category)
-                .Include(a => a.SubCategory)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<IEnumerable<Announcement>> GetAllAnnouncementsStoredProcAsync()
-        {
-            return await _context.Announcements
-                .FromSqlRaw("EXEC sp_GetAllAnnouncements")
-                .Include(a => a.User)
-                .Include(a => a.Category)
-                .Include(a => a.SubCategory)
-                .ToListAsync();
-        }
-
-        // Original Entity Framework methods kept for compatibility
         public async Task<IEnumerable<Announcement>> GetAnnouncementsByCategoryAsync(int categoryId)
         {
             return await _dbSet
@@ -163,11 +92,11 @@ namespace AnnouncementBoard.Data.Repositories
 
         public async Task<IEnumerable<Announcement>> GetAnnouncementsByUserStoredProcAsync(string userId)
         {
-            var parameter = new SqlParameter("@UserId", userId);
-            return await _context.Announcements
-                .FromSqlRaw("EXEC sp_GetUserAnnouncements @UserId", parameter)
+            return await _context.Set<Announcement>()
+                .FromSqlRaw("SELECT * FROM sp_GetUserAnnouncements({0})", userId)
                 .Include(a => a.Category)
                 .Include(a => a.SubCategory)
+                .AsNoTracking()
                 .ToListAsync();
         }
     }

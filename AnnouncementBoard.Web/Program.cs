@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<AnnouncementBoardDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskboardDB")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TaskboardDB")));
 
 // Register Repositories
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
@@ -24,8 +24,8 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-// Register Data Seeding Service
-builder.Services.AddScoped<IDataSeedingService, DataSeedingService>();
+// Register Data Seeding Service - commented out after initial seeding
+// builder.Services.AddScoped<IDataSeedingService, DataSeedingService>();
 
 // Add Authentication
 builder.Services.AddAuthentication(options =>
